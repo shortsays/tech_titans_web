@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join - The Tech Titans</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <meta http-equiv="Cache-Control" content="no-store" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <style>
+        * {
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #1a1633;
+            color: #eee;
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background-color 0.8s ease;
+        }
+
+        body.white-bg {
+            background-color: #fff !important;
+            color: #222;
+            transition: background-color 0.8s ease;
+        }
+
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.3;
+            z-index: -1;
+            animation: float 15s infinite ease-in-out alternate;
+            transition: opacity 0.8s ease;
+        }
+
+        body.white-bg::before,
+        body.white-bg::after {
+            opacity: 0;
+        }
+
+        body::before {
+            width: 300px;
+            height: 300px;
+            background: #6e53ff;
+            top: 10%;
+            left: 5%;
+            animation-delay: 0s;
+        }
+
+        body::after {
+            width: 350px;
+            height: 350px;
+            background: #ff5d8f;
+            bottom: 10%;
+            right: 5%;
+            animation-delay: 7s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) translateX(0) scale(1);
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-30px) translateX(30px) scale(1.1);
+                opacity: 0.45;
+            }
+        }
+
+        /* Top Navigation Bar */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border-radius: 6px;
+            position: fixed;
+            z-index: 999;
+            margin: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            padding: 0.5rem 0.75rem;
+            animation: slideDown 0.5s ease-out forwards;
+            width: calc(100% - 16px);
+            height: 52px;
+        }
+
+        @keyframes slideDown {
+            0% { transform: translateY(-100%); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        .nav-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: clamp(18px, 4vw, 22px);
+            font-weight: 600;
+            color: white;
+            white-space: nowrap;
+            z-index: 1;
+        }
+
+        .nav-left, .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 2;
+        }
+
+        .menu-icon {
+            font-size: 20px;
+            cursor: pointer;
+            color: white;
+            padding: 4px;
+            touch-action: manipulation;
+        }
+
+        .profile-btn {
+            width: 32px;
+            height: 32px;
+            background-color: #4b3f72;
+            border-radius: 50%;
+            overflow: hidden;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            touch-action: manipulation;
+        }
+
+        .profile-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border: 2px solid #fff;
+        }
+
+        .profile-btn:hover {
+            background-color: #6b5b95;
+            transform: scale(1.05);
+        }
+
+        .logout-btn {
+            padding: 6px 12px;
+            background-color: #4b3f72;
+            border: none;
+            border-radius: 16px;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            touch-action: manipulation;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .logout-btn:hover {
+            background-color: #6b5b95;
+            transform: scale(1.05);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            background: linear-gradient(135deg, rgba(17, 17, 17, 0.9), rgba(50, 50, 50, 0.7));
+            backdrop-filter: blur(10px);
+            border-right: 2px solid rgba(110, 83, 255, 0.5);
+            box-shadow: 2px 0 15px rgba(110, 83, 255, 0.3);
+            overflow-x: hidden;
+            transition: width 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            padding-top: 60px;
+        }
+
+        .sidebar.active {
+            width: 250px;
+        }
+
+        .sidebar a {
+            padding: 10px 25px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #fff;
+            display: block;
+            position: relative;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: opacity 0.3s ease, transform 0.3s ease, text-shadow 0.3s ease;
+        }
+
+        .sidebar.active a {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .sidebar.active a:nth-child(1) { transition-delay: 0.1s; }
+        .sidebar.active a:nth-child(2) { transition-delay: 0.2s; }
+        .sidebar.active a:nth-child(3) { transition-delay: 0.3s; }
+        .sidebar.active a:nth-child(4) { transition-delay: 0.4s; }
+        .sidebar.active a:nth-child(5) { transition-delay: 0.5s; }
+        .sidebar.active a:nth-child(6) { transition-delay: 0.6s; }
+        .sidebar.active a:nth-child(7) { transition-delay: 0.7s; }
+
+        .sidebar a:hover {
+            text-shadow: 0 0 10px #6e53ff, 0 0 20px #6e53ff;
+            transform: translateX(10px);
+        }
+
+        .sidebar .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            color: white;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar .close-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 150px 20px;
+            text-align: center;
+        }
+
+        .main-content h1 {
+            font-size: 40px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #ffffff;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out forwards 0.3s;
+        }
+
+        .description {
+            max-width: 600px;
+            margin: 0 auto 50px;
+            font-size: 18px;
+            line-height: 1.6;
+            color: #e0e0e0;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out forwards 0.5s;
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Register Form */
+        .register-form {
+            max-width: 500px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: cardFadeInUp 0.6s ease-out forwards 0.7s;
+        }
+
+        .register-form input,
+        .register-form select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #4b3f72;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 16px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+
+        .register-form input::placeholder {
+            color: #b0b0b0;
+        }
+
+        .product {
+            background-color: #4b3f72;
+            border: none;
+            border-radius: 16px;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            touch-action: manipulation;
+            min-width: 70px;
+            text-align: center;
+            padding: 6px 12px;
+        }
+
+        .product:hover {
+            background-color: #6b5b95;
+            transform: scale(1.05);
+        }
+
+        .register-form input:focus,
+        .register-form select:focus {
+            transform: scale(1.02);
+            border-color: #6b5b95;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            outline: none;
+        }
+
+        .register-form select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="white"><polygon points="0,0 10,0 5,10"/></svg>') no-repeat;
+            background-position: right 10px center;
+            background-size: 10px;
+        }
+
+        .register-form select option {
+            color: #a3bffa;
+            background: #2a2a4a;
+        }
+
+        .register-form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4b3f72;
+            border: none;
+            border-radius: 20px;
+            color: #ffffff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .register-form button:hover {
+            background-color: #6b5b95;
+            transform: scale(1.05);
+        }
+
+        .register-form button:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(107, 91, 149, 0.5);
+        }
+
+        /* Flash Messages */
+        .flash-message {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out forwards 0.7s;
+        }
+
+        .flash-message.error {
+            background-color: #ff4d4d;
+            color: #ffffff;
+        }
+
+        .flash-message.success {
+            background-color: #4CAF50;
+            color: #ffffff;
+        }
+
+        @keyframes cardFadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-nav {
+                padding: 0.4rem 0.5rem;
+                height: 48px;
+            }
+
+            .nav-center {
+                font-size: 18px;
+            }
+
+            .logout-btn {
+                padding: 4px 10px;
+                font-size: 12px;
+                min-width: 60px;
+            }
+
+            .profile-btn {
+                width: 28px;
+                height: 28px;
+            }
+
+            .menu-icon {
+                font-size: 18px;
+                padding: 4px;
+            }
+
+            .sidebar.active {
+                width: 250px;
+            }
+
+            .sidebar a {
+                font-size: 15px;
+                padding: 10px 15px;
+            }
+
+            .main-content {
+                padding: 120px 10px;
+            }
+
+            .main-content h1 {
+                font-size: 28px;
+            }
+
+            .description {
+                font-size: 16px;
+                margin-bottom: 30px;
+            }
+
+            .register-form {
+                padding: 20px 15px;
+            }
+
+            .register-form input,
+            .register-form select,
+            .register-form button {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .top-nav {
+                flex-direction: row;
+                padding: 0.4rem 0.5rem;
+                height: 44px;
+            }
+
+            .nav-center {
+                position: static;
+                transform: none;
+                width: auto;
+                text-align: center;
+                margin: 0;
+                font-size: 16px;
+            }
+
+            .nav-left, .nav-right {
+                flex-direction: row;
+                gap: 6px;
+            }
+
+            .sidebar.active {
+                width: 100%;
+            }
+
+            .main-content {
+                padding: 80px 8px;
+            }
+
+            .register-form {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <a href="#" class="close-btn" onclick="toggleSidebar()">×</a>
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('certificates') }}">Attended Hackathons</a>
+        <a href="{{ url_for('admin') }}">Admin Dashboard</a>
+        <a href="{{ url_for('team_management') }}">Create Team</a>
+        <a href="{{ url_for('search_team') }}">Search Team</a>
+        <a href="{{ url_for('register') }}">Team Registration</a>
+        <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+    </div>
+
+    <!-- Top Navigation Bar -->
+    <header class="top-nav">
+        <div class="nav-left">
+            <div class="menu-icon" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+        <div class="nav-center">
+            The Tech Titans
+        </div>
+        <div class="nav-right">
+            <a href="{{ url_for('profile') }}" class="profile-btn" title="Profile" id="profile-img">
+                <img src="{{ url_for('static', filename='images/profile-pic.jpg') }}" alt="Profile">
+            </a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1>Fill Your Details</h1>
+        <p class="description">Register to join our team and explore exciting opportunities!</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="register-form">
+            <form method="POST" action="{{ url_for('register') }}">
+                <input type="text" name="name" placeholder="Full Name" required>
+                <input type="email" name="email" placeholder="Email Address" required>
+                <input type="tel" name="contact_number" placeholder="Contact Number" required>
+                <select name="interested_domain" required>
+                    <option value="" disabled selected>Select Interested Domain</option>
+                    <option value="AI/ML">AI/ML</option>
+                    <option value="Full Stack">Full Stack</option>
+                    <option value="Cybersecurity">Cybersecurity</option>
+                    <option value="Data Science">Data Science</option>
+                    <option value="Mobile Development">Mobile Development</option>
+                    <option value="Cloud Computing">Cloud Computing</option>
+                </select>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Define the default image URL using Jinja2
+        const defaultProfileUrl = "{{ url_for('static', filename='images/default-profile.jpg') }}";
+
+        // Function to handle image load error
+        function handleImageError(img) {
+            img.src = defaultProfileUrl;
+        }
+
+        // Add event listener to profile image
+        document.addEventListener('DOMContentLoaded', () => {
+            const profileImg = document.getElementById('profile-img');
+            if (profileImg) {
+                profileImg.querySelector('img').onerror = () => handleImageError(profileImg.querySelector('img'));
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+            document.body.classList.toggle('no-scroll', sidebar.classList.contains('active'));
+        }
+
+        document.body.addEventListener('touchmove', (e) => {
+            if (document.body.classList.contains('no-scroll')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+    </script>
+</body>
+</html>

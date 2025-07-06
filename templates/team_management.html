@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Management - Tech Titans</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <meta http-equiv="Cache-Control" content="no-store" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <style>
+        * {
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #1a1633;
+            color: #eee;
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background-color 0.8s ease;
+        }
+
+        body.no-scroll {
+            overflow: hidden;
+        }
+
+        body.white-bg {
+            background-color: #fff !important;
+            color: #222;
+            transition: background-color 0.8s ease;
+        }
+
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.3;
+            z-index: -1;
+            animation: float 15s infinite ease-in-out alternate;
+            transition: opacity 0.8s ease;
+        }
+
+        body.white-bg::before,
+        body.white-bg::after {
+            opacity: 0;
+        }
+
+        body::before {
+            width: 300px;
+            height: 300px;
+            background: #6e53ff;
+            top: 10%;
+            left: 5%;
+            animation-delay: 0s;
+        }
+
+        body::after {
+            width: 350px;
+            height: 350px;
+            background: #ff5d8f;
+            bottom: 10%;
+            right: 5%;
+            animation-delay: 7s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) translateX(0) scale(1);
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-30px) translateX(30px) scale(1.1);
+                opacity: 0.45;
+            }
+        }
+
+        /* Top Navigation Bar */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border-radius: 6px;
+            position: fixed;
+            z-index: 999;
+            margin: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            padding: 0.5rem 0.75rem;
+            animation: slideDown 0.5s ease-out forwards;
+            width: calc(100% - 16px);
+            height: 52px;
+        }
+
+        @keyframes slideDown {
+            0% { transform: translateY(-100%); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        .nav-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: clamp(18px, 4vw, 22px);
+            font-weight: 600;
+            color: white;
+            white-space: nowrap;
+            z-index: 1;
+        }
+
+        .nav-left, .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 2;
+        }
+
+        .menu-icon {
+            font-size: 20px;
+            cursor: pointer;
+            color: white;
+            padding: 4px;
+            touch-action: manipulation;
+        }
+
+        .profile-btn {
+            width: 32px;
+            height: 32px;
+            background-color: #4b3f72;
+            border-radius: 50%;
+            overflow: hidden;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            touch-action: manipulation;
+        }
+
+        .profile-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border: 2px solid #fff;
+        }
+
+        .profile-btn:hover {
+            background-color: #6b5b95;
+            transform: scale(1.05);
+        }
+
+        .logout-btn {
+            padding: 6px 12px;
+            background-color: #4b3f72;
+            border: none;
+            border-radius: 16px;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            touch-action: manipulation;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .logout-btn:hover {
+            background-color: #6b5b95;
+            transform: scale(1.05);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            background: linear-gradient(135deg, rgba(17, 17, 17, 0.9), rgba(50, 50, 50, 0.7));
+            backdrop-filter: blur(10px);
+            border-right: 2px solid rgba(110, 83, 255, 0.5);
+            box-shadow: 2px 0 15px rgba(110, 83, 255, 0.3);
+            overflow-x: hidden;
+            transition: width 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            padding-top: 60px;
+        }
+
+        .sidebar.active {
+            width: 250px;
+        }
+
+        .sidebar a {
+            padding: 10px 25px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #fff;
+            display: block;
+            position: relative;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: opacity 0.3s ease, transform 0.3s ease, text-shadow 0.3s ease;
+        }
+
+        .sidebar.active a {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .sidebar.active a:nth-child(1) { transition-delay: 0.1s; }
+        .sidebar.active a:nth-child(2) { transition-delay: 0.2s; }
+        .sidebar.active a:nth-child(3) { transition-delay: 0.3s; }
+        .sidebar.active a:nth-child(4) { transition-delay: 0.4s; }
+        .sidebar.active a:nth-child(5) { transition-delay: 0.5s; }
+        .sidebar.active a:nth-child(6) { transition-delay: 0.6s; }
+        .sidebar.active a:nth-child(7) { transition-delay: 0.7s; }
+
+        .sidebar a:hover {
+            text-shadow: 0 0 10px #6e53ff, 0 0 20px #6e53ff;
+            transform: translateX(10px);
+        }
+
+        .sidebar .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            color: white;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar .close-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 150px 20px;
+            text-align: center;
+        }
+
+        .main-content h1 {
+            font-size: 40px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #ffffff;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out forwards 0.3s;
+        }
+
+        .description {
+            max-width: 600px;
+            margin: 0 auto 50px;
+            font-size: 18px;
+            line-height: 1.6;
+            color: #e0e0e0;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out forwards 0.5s;
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Profile Section */
+        .profile-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px 20px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: cardFadeInUp 0.6s ease-out forwards 0.7s;
+        }
+
+        .profile-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid white;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .profile-photo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .profile-details h2 {
+            font-size: 20px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .profile-details p {
+            font-size: 16px;
+            color: #e0e0e0;
+        }
+
+        /* Team Form */
+        .team-form {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px 20px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: cardFadeInUp 0.6s ease-out forwards 0.9s;
+        }
+
+        .team-form h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+
+        .team-form h3 {
+            font-size: 18px;
+            margin: 15px 0;
+            color: #ffffff;
+        }
+
+        .team-form input,
+        .team-form select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid #4b3f72;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+
+        .team-form input:focus,
+        .team-form select:focus {
+            transform: scale(1.02);
+            border-color: #6b5b95;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            outline: none;
+        }
+
+        .team-form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4b3f72;
+            border: none;
+            border-radius: 20px;
+            color: #ffffff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .team-form button:hover {
+            background-color: #6b5b95;
+            transform: scale(1.05);
+        }
+
+        .team-form button:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(107, 91, 149, 0.5);
+        }
+
+        .member-entry {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .member-entry input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .add-member-btn {
+            background-color: #4b3f72;
+            color: #ffffff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 10px 0;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .add-member-btn:hover {
+            background-color: #6b5b95;
+            transform: scale(1.05);
+        }
+
+        /* Share Link */
+        .share-link {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px 20px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: cardFadeInUp 0.6s ease-out forwards 1.1s;
+        }
+
+        .share-link h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+
+        .share-link input {
+            width: 80%;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border: 1px solid #4b3f72;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .share-link input:focus {
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .share-link button {
+            padding: 10px 20px;
+            background-color: #4b3f72;
+            border: none;
+            border-radius: 20px;
+            color: #ffffff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-left: 10px;
+        }
+
+        .share-link button:hover {
+            background-color: #6b5b95;
+            transform: scale(1.05);
+        }
+
+        /* Team Details */
+        .team-details {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px 20px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: cardFadeInUp 0.6s ease-out forwards 0.9s;
+        }
+
+        .team-details h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+
+        .team-details p {
+            font-size: 16px;
+            margin: 10px 0;
+            color: #e0e0e0;
+        }
+
+        /* Team Members */
+        .team-members {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: cardFadeInUp 0.6s ease-out forwards 1.3s;
+        }
+
+        .team-members h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+
+        .team-members ul {
+            list-style: none;
+        }
+
+        .team-members li {
+            font-size: 16px;
+            margin: 10px 0;
+            color: #e0e0e0;
+        }
+
+        /* Search Team Button */
+        .search-team-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4b3f72;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 20px;
+            margin-top: 20px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out forwards 1.5s;
+        }
+
+        .search-team-btn:hover {
+            background-color: #6b5b95;
+            transform: scale(1.05);
+        }
+
+        /* Flash Messages */
+        .flash-message {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out forwards 0.7s;
+        }
+
+        .flash-message.success {
+            background-color: #4CAF50;
+            color: #ffffff;
+            border: 1px solid #388E3C;
+        }
+
+        .flash-message.error {
+            background-color: #ff4d4d;
+            color: #ffffff;
+            border: 1px solid #d32f2f;
+        }
+
+        @keyframes cardFadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-nav {
+                padding: 0.4rem 0.5rem;
+                height: 48px;
+            }
+
+            .nav-center {
+                font-size: 18px;
+            }
+
+            .logout-btn {
+                padding: 4px 10px;
+                font-size: 12px;
+                min-width: 60px;
+            }
+
+            .profile-btn {
+                width: 28px;
+                height: 28px;
+            }
+
+            .menu-icon {
+                font-size: 18px;
+                padding: 4px;
+            }
+
+            .sidebar.active {
+                width: 250px;
+            }
+
+            .sidebar a {
+                font-size: 15px;
+                padding: 10px 15px;
+            }
+
+            .main-content {
+                padding: 120px 10px;
+            }
+
+            .main-content h1 {
+                font-size: 28px;
+            }
+
+            .description {
+                font-size: 16px;
+                margin-bottom: 30px;
+            }
+
+            .profile-section {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .profile-photo {
+                width: 80px;
+                height: 80px;
+            }
+
+            .profile-details h2 {
+                font-size: 18px;
+            }
+
+            .profile-details p {
+                font-size: 14px;
+            }
+
+            .team-form,
+            .share-link,
+            .team-details,
+            .team-members {
+                padding: 20px 15px;
+            }
+
+            .team-form h2,
+            .share-link h2,
+            .team-details h2,
+            .team-members h2 {
+                font-size: 20px;
+            }
+
+            .team-form input,
+            .team-form select,
+            .share-link input {
+                font-size: 14px;
+            }
+
+            .team-form button,
+            .share-link button,
+            .add-member-btn,
+            .search-team-btn {
+                font-size: 14px;
+            }
+
+            .share-link input {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .share-link button {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .team-details p,
+            .team-members li {
+                font-size: 14px;
+            }
+
+            .member-entry {
+                flex-direction: column;
+            }
+
+            .member-entry input {
+                min-width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .top-nav {
+                flex-direction: row;
+                padding: 0.4rem 0.5rem;
+                height: 44px;
+            }
+
+            .nav-center {
+                position: static;
+                transform: none;
+                width: auto;
+                text-align: center;
+                margin: 0;
+                font-size: 16px;
+            }
+
+            .nav-left, .nav-right {
+                flex-direction: row;
+                gap: 6px;
+            }
+
+            .sidebar.active {
+                width: 100%;
+            }
+
+            .main-content {
+                padding: 80px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <a href="#" class="close-btn" onclick="toggleSidebar()">×</a>
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('certificates') }}">Attended Hackathons</a>
+        {% if session.get('user') == 'admin' %}
+            <a href="{{ url_for('admin') }}">Admin Dashboard</a>
+        {% endif %}
+        <a href="{{ url_for('team_management') }}">Create Team</a>
+        <a href="{{ url_for('search_team') }}">Search Team</a>
+        <a href="{{ url_for('register') }}">Team Registration</a>
+        <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+    </div>
+
+    <!-- Top Navigation Bar -->
+    <header class="top-nav">
+        <div class="nav-left">
+            <div class="menu-icon" onclick="toggleSidebar()" aria-label="Open menu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+        <div class="nav-center">
+            The Tech Titans
+        </div>
+        <div class="nav-right">
+            <a href="{{ url_for('profile') }}" class="profile-btn" title="Profile" id="profile-img">
+                <img src="{{ url_for('static', filename='images/profile-pic.jpg') }}" alt="Profile">
+            </a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1>Team Management</h1>
+        <p class="description">Manage your team or join one here.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="profile-section">
+            <img src="{{ url_for('static', filename='Uploads/' + user.profile_photo) }}" alt="Profile Photo" class="profile-photo">
+            <div class="profile-details">
+                <h2>{{ user.username }}</h2>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+            </div>
+        </div>
+
+        {% if team %}
+            <div class="team-details">
+                <h2>Team Details</h2>
+                <p><strong>Team Name:</strong> {{ team.team_name }}</p>
+                <p><strong>Hackathon Event:</strong> {{ team.hackathon_event }}</p>
+                <p><strong>Description:</strong> {{ team.description or 'No description provided.' }}</p>
+                <p><strong>Leader:</strong> {{ team.leader_username }}</p>
+            </div>
+
+            {% if team.leader_username == user.username %}
+                <div class="share-link">
+                    <h2>Share Team Link</h2>
+                    <input type="text" id="teamLink" value="{{ url_for('join_team', team_id=team.id, _external=True) }}" readonly>
+                    <button onclick="copyLink()">Copy Link</button>
+                </div>
+            {% endif %}
+
+            <div class="team-members">
+                <h2>Team Members</h2>
+                <ul>
+                    {% if team_members %}
+                        {% for member in team_members %}
+                            <li>
+                                {{ member[1] }} ({{ 'Leader' if member[0] == user.username else 'Member' }})<br>
+                                <strong>Username:</strong> {{ member[0] }}<br>
+                                <strong>Phone:</strong> {{ member[2] }}<br>
+                                <strong>Email:</strong> {{ member[3] }}
+                            </li>
+                        {% endfor %}
+                    {% else %}
+                        <li>No members yet. Share the link to invite others!</li>
+                    {% endif %}
+                </ul>
+            </div>
+        {% else %}
+            <div class="team-form">
+                <h2>Create a Team</h2>
+                <form method="POST" action="{{ url_for('team_management') }}">
+                    <input type="text" name="team_name" placeholder="Team Name" required>
+                    <input type="text" name="description" placeholder="Team Description">
+                    <select name="hackathon_event" required>
+                        <option value="" disabled selected>Select Hackathon Event</option>
+                        {% for hackathon in hackathons %}
+                            <option value="{{ hackathon[0] }}">{{ hackathon[0] }}</option>
+                        {% endfor %}
+                    </select>
+                    <h3>Team Leader (You)</h3>
+                    <div class="member-entry">
+                        <input type="text" name="member_name[]" value="{{ user.username }}" readonly>
+                        <input type="text" name="member_phone[]" placeholder="Your Phone Number" required>
+                        <input type="email" name="member_email[]" value="{{ user.email }}" readonly>
+                    </div>
+                    <div id="memberFields"></div>
+                    <button type="button" class="add-member-btn" onclick="addMember()">Add Member</button>
+                    <button type="submit">Create Team</button>
+                </form>
+            </div>
+            <a href="{{ url_for('search_team') }}" class="search-team-btn">Search for a Team to Join</a>
+        {% endif %}
+    </div>
+
+    <script>
+        // Define the default image URL using Jinja2
+        const defaultProfileUrl = "{{ url_for('static', filename='images/default-profile.jpg') }}";
+
+        // Function to handle image load error
+        function handleImageError(img) {
+            img.src = defaultProfileUrl;
+        }
+
+        // Add event listener to profile image
+        document.addEventListener('DOMContentLoaded', () => {
+            const profileImg = document.getElementById('profile-img');
+            if (profileImg) {
+                profileImg.querySelector('img').onerror = () => handleImageError(profileImg.querySelector('img'));
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+            document.body.classList.toggle('no-scroll', sidebar.classList.contains('active'));
+        }
+
+        function copyLink() {
+            const linkInput = document.getElementById('team romanceLink');
+            linkInput.select();
+            document.execCommand('copy');
+            alert('Link copied to clipboard!');
+        }
+
+        let memberCount = 0;
+        function addMember() {
+            memberCount++;
+            const memberFields = document.getElementById('memberFields');
+            const memberEntry = document.createElement('div');
+            memberEntry.className = 'member-entry';
+            memberEntry.innerHTML = `
+                <input type="text" name="member_name[]" placeholder="Member ${memberCount} Name" required>
+                <input type="text" name="member_phone[]" placeholder="Member ${memberCount} Phone Number" required>
+                <input type="email" name="member_email[]" placeholder="Member ${memberCount} Email" required>
+            `;
+            memberFields.appendChild(memberEntry);
+        }
+
+        document.body.addEventListener('touchmove', (e) => {
+            if (document.body.classList.contains('no-scroll')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+    </script>
+</body>
+</html>

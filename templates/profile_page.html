@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - The Tech Titans</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <meta http-equiv="Cache-Control" content="no-store" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <style>
+        :root {
+            --primary-color: #6e53ff;
+            --accent-color: #ff5d8f;
+            --button-bg: #4b3f72;
+            --button-hover-bg: #6b5b95;
+            --text-light: #eee;
+            --text-muted: #e0e0e0;
+        }
+
+        * {
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            background: #1a1633;
+            color: var(--text-light);
+            overflow-x: hidden;
+            transition: background-color 0.8s ease;
+        }
+
+        body.white-bg {
+            background-color: #fff;
+            color: #222;
+            transition: background-color 0.8s ease;
+        }
+
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+            z-index: -1;
+            animation: float 15s infinite ease-in-out alternate;
+            transition: opacity 0.8s ease;
+        }
+
+        body.white-bg::before,
+        body.white-bg::after {
+            opacity: 0;
+        }
+
+        body::before {
+            width: 200px;
+            height: 200px;
+            background: var(--primary-color);
+            top: 10%;
+            left: 5%;
+            animation-delay: 0s;
+        }
+
+        body::after {
+            width: 250px;
+            height: 250px;
+            background: var(--accent-color);
+            bottom: 10%;
+            right: 5%;
+            animation-delay: 7s;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) translateX(0) scale(1); opacity: 0.3; }
+            100% { transform: translateY(-20px) translateX(20px) scale(1.05); opacity: 0.45; }
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border-radius: 6px;
+            position: fixed;
+            z-index: 999;
+            margin: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            padding: 0.5rem 0.75rem;
+            animation: slideDown 0.5s ease-out forwards;
+            width: calc(100% - 16px);
+            height: 52px;
+        }
+
+        @keyframes slideDown {
+            0% { transform: translateY(-100%); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        .nav-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: clamp(18px, 4vw, 22px);
+            font-weight: 600;
+            color: white;
+            white-space: nowrap;
+            z-index: 1;
+        }
+
+        .nav-left, .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 2;
+        }
+
+        .menu-icon {
+            font-size: 20px;
+            cursor: pointer;
+            color: white;
+            padding: 4px;
+            touch-action: manipulation;
+        }
+
+        .profile-btn {
+            width: 32px;
+            height: 32px;
+            background-color: var(--button-bg);
+            border-radius: 50%;
+            overflow: hidden;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            touch-action: manipulation;
+        }
+
+        .profile-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border: 2px solid #fff;
+        }
+
+        .profile-btn:hover {
+            background-color: var(--button-hover-bg);
+            transform: scale(1.05);
+        }
+
+        .logout-btn {
+            padding: 6px 12px;
+            background-color: var(--button-bg);
+            border: none;
+            border-radius: 16px;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            touch-action: manipulation;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .logout-btn:hover {
+            background-color: var(--button-hover-bg);
+            transform: scale(1.05);
+        }
+
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            background: linear-gradient(135deg, rgba(17, 17, 17, 0.95), rgba(50, 50, 50, 0.8));
+            backdrop-filter: blur(10px);
+            border-right: 2px solid rgba(110, 83, 255, 0.5);
+            box-shadow: 2px 0 15px rgba(110, 83, 255, 0.3);
+            overflow-x: hidden;
+            transition: width 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            padding-top: 60px;
+        }
+
+        .sidebar.active {
+            width: 280px;
+        }
+
+        .sidebar a {
+            padding: 12px 20px;
+            text-decoration: none;
+            font-size: 16px;
+            color: #fff;
+            display: block;
+            position: relative;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: opacity 0.3s ease, transform 0.3s ease, text-shadow 0.3s ease;
+            touch-action: manipulation;
+        }
+
+        .sidebar.active a {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .sidebar.active a:nth-child(1) { transition-delay: 0.1s; }
+        .sidebar.active a:nth-child(2) { transition-delay: 0.2s; }
+        .sidebar.active a:nth-child(3) { transition-delay: 0.3s; }
+        .sidebar.active a:nth-child(4) { transition-delay: 0.4s; }
+        .sidebar.active a:nth-child(5) { transition-delay: 0.5s; }
+        .sidebar.active a:nth-child(6) { transition-delay: 0.6s; }
+        .sidebar.active a:nth-child(7) { transition-delay: 0.7s; }
+
+        .sidebar a:hover {
+            text-shadow: 0 0 8px var(--primary-color);
+            transform: translateX(5px);
+        }
+
+        .sidebar .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 28px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            touch-action: manipulation;
+        }
+
+        .sidebar .close-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        .main-content {
+            padding: 120px 15px;
+            text-align: center;
+        }
+
+        .main-content h1 {
+            font-size: clamp(28px, 8vw, 36px);
+            margin-bottom: 15px;
+            font-weight: 700;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out forwards 0.3s;
+        }
+
+        .main-content .description {
+            max-width: 700px;
+            margin: 0 auto 40px;
+            font-size: clamp(16px, 4vw, 18px);
+            line-height: 1.6;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out forwards 0.5s;
+        }
+
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .profile-details, .upload-form, .password-form {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            width: clamp(250px, 45%, 300px);
+            margin: 0 auto 20px;
+            backdrop-filter: blur(8px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .profile-details {
+            animation: cardFadeInUp 0.6s ease-out forwards 0.7s;
+        }
+
+        .upload-form {
+            animation: cardFadeInUp 0.6s ease-out forwards 0.9s;
+        }
+
+        .password-form {
+            animation: cardFadeInUp 0.6s ease-out forwards 1.1s;
+        }
+
+        @keyframes cardFadeInUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .profile-details:hover, .upload-form:hover, .password-form:hover {
+            transform: scale(1.03);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .profile-details h2, .upload-form h2, .password-form h2 {
+            font-size: 18px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .profile-details p {
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .profile-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px solid white;
+            object-fit: cover;
+            margin-bottom: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .upload-form input[type="file"],
+        .password-form input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid var(--button-bg);
+            border-radius: 5px;
+            font-size: 13px;
+        }
+
+        .upload-form input[type="file"]:focus,
+        .password-form input:focus {
+            outline: none;
+            border-color: var(--button-hover-bg);
+            box-shadow: 0 0 5px rgba(107, 91, 149, 0.5);
+        }
+
+        .upload-form button,
+        .password-form button {
+            padding: 6px 12px;
+            background-color: var(--button-bg);
+            border: none;
+            border-radius: 16px;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            touch-action: manipulation;
+            width: 100%;
+        }
+
+        .upload-form button:hover,
+        .password-form button:hover {
+            background-color: var(--button-hover-bg);
+            transform: scale(1.05);
+        }
+
+        .flash-message {
+            padding: 10px;
+            margin: 0 auto 20px;
+            border-radius: 16px;
+            font-size: 13px;
+            text-align: center;
+            max-width: clamp(250px, 45%, 300px);
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            animation: cardFadeInUp 0.6s ease-out forwards 1.3s;
+        }
+
+        .flash-message.success {
+            background-color: #4CAF50;
+            border: 1px solid #388E3C;
+        }
+
+        .flash-message.error {
+            background-color: #ff4d4d;
+            border: 1px solid #d32f2f;
+        }
+
+        #preview {
+            max-width: 80px;
+            margin-top: 10px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .profile-details, .upload-form, .password-form, .flash-message {
+                animation: none;
+                transition: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-nav {
+                padding: 0.4rem 0.5rem;
+                height: 48px;
+            }
+
+            .nav-center {
+                font-size: 18px;
+            }
+
+            .logout-btn {
+                padding: 4px 10px;
+                font-size: 12px;
+                min-width: 60px;
+            }
+
+            .profile-btn {
+                width: 28px;
+                height: 28px;
+            }
+
+            .menu-icon {
+                font-size: 18px;
+                padding: 4px;
+            }
+
+            .sidebar.active {
+                width: 250px;
+            }
+
+            .sidebar a {
+                font-size: 15px;
+                padding: 10px 15px;
+            }
+
+            .main-content {
+                padding: 100px 10px;
+            }
+
+            .main-content h1 {
+                font-size: 28px;
+            }
+
+            .description {
+                font-size: 16px;
+                margin-bottom: 30px;
+            }
+
+            .profile-details, .upload-form, .password-form {
+                width: 100%;
+                max-width: 320px;
+            }
+
+            .profile-photo {
+                width: 70px;
+                height: 70px;
+            }
+
+            .flash-message {
+                font-size: 13px;
+                max-width: 320px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .top-nav {
+                flex-direction: row;
+                padding: 0.4rem 0.5rem;
+                height: 44px;
+            }
+
+            .nav-center {
+                position: static;
+                transform: none;
+                width: auto;
+                text-align: center;
+                margin: 0;
+                font-size: 16px;
+            }
+
+            .nav-left, .nav-right {
+                flex-direction: row;
+                gap: 6px;
+            }
+
+            .sidebar.active {
+                width: 100%;
+            }
+
+            .main-content {
+                padding: 80px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar" aria-expanded="false">
+        <a href="#" class="close-btn" onclick="toggleSidebar()" aria-label="Close sidebar">×</a>
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('certificates') }}">Attended Hackathons</a>
+        <a href="{{ url_for('admin') }}">Admin Dashboard</a>
+        <a href="{{ url_for('team_management') }}">Create Team</a>
+        <a href="{{ url_for('search_team') }}">Search Team</a>
+        <a href="{{ url_for('register') }}">Team Registration</a>
+        <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+    </div>
+
+    <header class="top-nav">
+        <div class="nav-left">
+            <div class="menu-icon" onclick="toggleSidebar()" aria-label="Open sidebar">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+        <div class="nav-center">
+            The Tech Titans
+        </div>
+        <div class="nav-right">
+            <a href="{{ url_for('profile') }}" class="profile-btn" title="Profile" id="profile-img">
+                <img src="{{ url_for('static', filename='uploads/' + user.profile_photo) }}" alt="Profile" loading="lazy">
+            </a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        </div>
+    </header>
+
+    <section class="main-content">
+        <h1>Your Profile</h1>
+        <p class="description">Manage your account details, upload a profile photo, or change your password below.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="profile-details">
+            <h2>Account Details</h2>
+            <img src="{{ url_for('static', filename='uploads/' + user.profile_photo) }}" alt="Profile Photo" class="profile-photo" loading="lazy">
+            <p><strong>Username:</strong> {{ user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+        </div>
+
+        <div class="upload-form">
+            <h2>Upload Profile Photo</h2>
+            <form method="POST" action="{{ url_for('profile') }}" enctype="multipart/form-data">
+                <input type="file" name="profile_photo" accept="image/*" id="photo-input" aria-label="Upload profile photo">
+                <img id="preview" style="display: none;" alt="Profile photo preview">
+                <button type="submit">Upload</button>
+            </form>
+        </div>
+
+        <div class="password-form">
+            <h2>Change Password</h2>
+            <form method="POST" action="{{ url_for('update_password') }}">
+                <input type="password" name="current_password" placeholder="Current Password" required aria-label="Current password">
+                <input type="password" name="new_password" placeholder="New Password" required aria-label="New password">
+                <input type="password" name="confirm_password" placeholder="Confirm New Password" required aria-label="Confirm new password">
+                <button type="submit">Change Password</button>
+            </form>
+        </div>
+    </section>
+
+    <script>
+        const defaultProfileUrl = "{{ url_for('static', filename='images/default-profile.jpg') }}";
+
+        function handleImageError(img) {
+            img.src = defaultProfileUrl;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const profileImg = document.getElementById('profile-img');
+            if (profileImg) {
+                profileImg.querySelector('img').onerror = () => handleImageError(profileImg.querySelector('img'));
+            }
+
+            const profilePhoto = document.querySelector('.profile-details .profile-photo');
+            if (profilePhoto) {
+                profilePhoto.onerror = () => handleImageError(profilePhoto);
+            }
+
+            const photoInput = document.getElementById('photo-input');
+            photoInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.getElementById('preview');
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            function toggleSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                const isActive = sidebar.classList.toggle('active');
+                sidebar.setAttribute('aria-expanded', isActive);
+                document.body.classList.toggle('no-scroll', isActive);
+            }
+
+            document.querySelector('.menu-icon').addEventListener('click', toggleSidebar);
+            document.querySelector('.close-btn').addEventListener('click', toggleSidebar);
+
+            document.body.addEventListener('touchmove', (e) => {
+                if (document.body.classList.contains('no-scroll')) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+        });
+    </script>
+</body>
+</html>
