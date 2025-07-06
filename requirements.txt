@@ -1,0 +1,5 @@
+Flask
+gunicorn
+authlib
+flask_login
+werkzeug
